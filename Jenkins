@@ -1,0 +1,42 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('git download') {
+            steps {
+                echo 'success'
+                git "https://github.com/sunnyramagiri/dockerpipe.git"
+            }
+        }
+        stage('docker build') {
+            steps {
+                script {
+                    echo "docker success"
+                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker') {
+                        sh 'docker build -t sunnyramagiri/node .'
+                    }
+                }
+            }
+        }
+        stage('docker push') {
+            steps {
+                script {
+                    echo "push success"
+                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker') {
+                        sh 'docker push sunnyramagiri/node'
+                    }
+                }
+            }
+        }
+        stage('docker run') {
+            steps {
+                script {
+                    echo "run success"
+                    withDockerRegistry(credentialsId: 'docker', toolName: 'docker') {
+                        sh 'docker run -d --name mynode sunnyramagiri/node'
+                    }
+                }
+            }
+        }
+    }
+}
